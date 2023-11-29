@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+  <meta charset="UTF-8">
+  <title>Store Web Application</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <script src="https://kit.fontawesome.com/3532fa6739.js" crossorigin="anonymous"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<style>
+  body{
+    height: 100vh;
+    background: linear-gradient(
+            to right,
+            white 0%,
+            white 50%,
+            #FFAF3FD9 0%,
+            #FFAF3FD9 50%
+    );
+  }
+</style>
+</head>
+<script>
+</script>
+
+<body>
+<div th:insert="~{fragments/header :: header}"></div>
+<div class="row">
+
+  <div class="col-xl-6" style="padding-left: 3%;padding-right: 3%; padding-top: 5%; padding-bottom: 10%;">
+    <a  th:href="@{/inventory}" class="btn" style="position: absolute; top: 10%; left: 3%;">
+      <i class="fa-solid fa-circle-arrow-left fa-2xl"></i>    </a>
+    <div class="card mb-3" style=" border-radius: 33px;height: 100%;width: 100%;padding-left: 10%;padding-top: 5%;padding-right: 5%">
+      <label for="imageFile">รูปสินค้า</label>
+      <div  class="row">
+        <div class="col-xl-3"></div>
+        <div class="col-xl-3">
+          <img th:src="'data:image/jpeg;base64,' + ${products.imageFile}" style="width: 250px;height: 250px;">
+
+        </div>
+        <div class="col-xl-3"></div>
+        <div class="col-xl-3"></div>
+
+      </div>
+
+    </div>
+
+
+  </div>
+  <div class="col-xl-6" style="padding-left: 3%;padding-right: 3%; padding-top: 5%; padding-bottom: 10%">
+    <div class="card" style=" border-radius: 33px;height: 100%;width: 100%;padding-left: 10%;padding-top: 5%;padding-right: 5%">
+      <h1>แก้ไขข้อมูลสินค้า</h1>
+      <form action="#" th:action="@{/products/edit/{id}(id=${products.id})}" method="POST" enctype="multipart/form-data" >
+        <div class="mb-3">
+          <label for="inputName">ชื่อสินค้า</label>
+          <input id="inputName" type="text" class="form-control" name="name" th:value="${products.name}" required>
+          <div id="error-msg" class="alert alert-danger"
+               th:if="${nameError}">
+            <span th:text="${nameError}"></span>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="inputDetail">รายละเอียดสินค้า</label>
+          <input id="inputDetail" type="text" class="form-control" name="detail" th:value="${products.detail}" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="inputCategory">ประเภทสินค้า</label>
+          <select class="form-control" id="inputCategory" name="categoryId">
+            <option th:each="category : ${categories}"
+                    th:value="${category.id}" th:text="${category.getCategoryName()}">
+            </option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="inputPrice">ราคา</label>
+<!--          <input id="inputPrice" type="number" class="form-control" name="price"  pattern="[0-9]{7}+" required>-->
+          <input id="inputPrice" type="number" class="form-control" th:value="${products.price}" th:min="1" th:max="100000" name="price" onchange="checkPrice()" pattern="[0-9]" autocomplete="off" required>
+        </div>
+        <div class="mb-3">
+          <label for="inputRequire">จำนวนมากสุดที่ต้องการ</label>
+          <input id="inputRequire" type="number" class="form-control" th:value="${products.requireProduct}" th:min="1" th:max="500" name="requireProduct" onchange="checkRequire()" pattern="[0-9]" autocomplete="off" required>
+
+        </div>
+        <div class="mb-3">
+          <label for="inputStock">จำนวนสินค้าคงคลัง</label>
+          <input id="inputStock" type="number" class="form-control" th:value="${products.stock}" th:min="1" th:max="500" name="stock" onchange="checkQuantity()" pattern="[0-9]" autocomplete="off" required>
+        </div>
+        <div class="mb-3">
+        <input type="file" id="imageFile" name="imageFile" accept="image/*" th:value="${products.imageFile}">
+        </div>
+        <button id="submit-button" type="submit" class="btn btn-primary" onclick="return confirm('คุณแน่ใจหรือไม่ว่าต้องการส่งแบบฟอร์มนี้?');">
+          แก้ไขสินค้า</button>
+<!--        <input type="submit" value="บันทึก">-->
+
+      </form>
+      <div>
+        <form th:action="@{/products/delete/{id}(id=${products.id})}" th:method="post">
+          <input type="hidden" name="_method" />
+          <button type="submit" class="btn btn-danger" onclick="return confirm('คุณแน่ใจใช่ไหมที่จะเปลี่ยนสถานะสินค้านี้?');">เปลี่ยนสถานะ</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Confirmation Modal -->
+<!--<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">-->
+<!--  <div class="modal-dialog">-->
+<!--    <div class="modal-content">-->
+<!--      <div class="modal-header">-->
+<!--        <h5 class="modal-title" id="confirmModalLabel">Confirmation</h5>-->
+<!--        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>-->
+<!--      </div>-->
+<!--      <div class="modal-body">-->
+<!--        คุณแน่ใจใช่ไหมที่จะเปลี่ยนสถานะสินค้านี้-->
+<!--      </div>-->
+<!--      <div class="modal-footer">-->
+<!--        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>-->
+<!--        <button type="button" class="btn btn-primary" id="confirmSubmit">ยืนยัน</button>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</div>-->
+
+<!-- JavaScript to trigger the modal -->
+<script>
+  function checkQuantity() {
+    var quantity = document.getElementById("inputStock").value;
+
+    if (quantity > 500) {
+      alert("จำนวนสินค้าเกิน 500 ชิ้น");
+    }
+  }
+  function checkRequire() {
+    var quantity = document.getElementById("inputRequire").value;
+
+    if (quantity > 500) {
+      alert("จำนวนสินค้าเกิน 500 ชิ้น");
+    }
+  }
+  function checkPrice() {
+    var quantity = document.getElementById("inputPrice").value;
+
+    if (quantity > 100000) {
+      alert("ราคาเกิน 100000 บาท");
+    }
+  }
+</script>
+</body>
+
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="UTF-8">
+    <title>Store Web Application</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</head>
+<style>
+    .confirm-delete-modal {
+        background-color: #f7f7f7;
+    }
+</style>
+<body>
+<div th:insert="~{fragments/header :: header}"></div>
+
+<div class="container">
+<!--    &lt;!&ndash; Search Bar &ndash;&gt;-->
+<!--    <div class="input-group mb-3">-->
+<!--        <input type="text" id="product-search" class="form-control" placeholder="Search for a product">-->
+<!--        <div class="input-group-append">-->
+<!--            <button class="btn btn-outline-secondary" type="button" onclick="searchProducts()">Search</button>-->
+<!--        </div>-->
+<!--    </div>-->
+    <!-- Dropdown for Search Criteria -->
+    <div class="input-group mb-3">
+        <select class="form-select" id="search-criteria">
+            <option value="name">ชื่อสินค้า</option>
+            <option value="operationType">operationType</option>
+            <option value="status">สถานะ</option>
+            <!-- Add more search criteria options as needed -->
+        </select>
+        <input type="text" class="form-control" id="product-search" placeholder="Search for a product">
+        <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="button" onclick="searchProducts()">Search</button>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-striped table-hover">
+        <thead class="thead-dark">
+        <tr>
+            <th>ชื่อสินค้า</th>
+            <th>operationType</th>
+            <th>สถานะ</th>
+            <th>รายละเอียดการกระทำ</th>
+            <th>เวลา</th>
+        </tr>
+        </thead>
+        <tbody>
+        <th:block th:if="${productLogs != null}">
+<!--            th:if="${productLog.status == T(ku.cs.store.common.OperationType).CREATE}"-->
+
+            <tr th:each="productLog : ${productLogs}" >
+                <td th:text="${productLog.product.name}"></td>
+
+                <td th:text="${productLog.operationType}"></td>
+                <!-- Assuming your product object contains the Base64-encoded image -->
+<!--                <td><img th:src="'data:image/jpeg;base64,' + ${product.imageFile}" alt="Image Description" style="width: 100px;height: 100px;"></td>-->
+                <td th:text="${productLog.product.statusProduct}"
+                    th:class="${productLog.product.statusProduct == T(ku.cs.store.common.StatusProduct).UNAVAILABLE} ? 'text-bg-danger' : ''"></td>
+                <td th:text="${productLog.detail}"></td>
+                <td th:text="${productLog.timestamp}"></td>
+<!--                <td th:text="${productLog.requireProduct}"></td>-->
+
+<!--                <td><a class="btn btn-primary" th:href="@{'/products/view/' + ${product.id}}">View</a></td>-->
+
+            </tr>
+        </th:block>
+        </tbody>
+    </table>
+
+</div>
+<script>
+    function searchProducts() {
+        var searchInput = document.getElementById('product-search').value.toLowerCase();
+        var table = document.querySelector('.table');
+        var rows = table.getElementsByTagName('tr');
+        var selectedCriteria = document.getElementById('search-criteria').value;
+
+        for (var i = 0; i < rows.length; i++) {
+            var cells = rows[i].getElementsByTagName('td');
+            if (cells.length > 0) {
+                var cellValue = cells[getIndexByCriteria(selectedCriteria)].textContent.toLowerCase();
+                if (cellValue.includes(searchInput)) {
+                    rows[i].style.display = '';
+                } else {
+                    rows[i].style.display = 'none';
+                }
+            }
+        }
+    }
+
+    function getIndexByCriteria(criteria) {
+        switch (criteria) {
+            case 'name':
+                return 0;
+            case 'operationType':
+                return 1;
+            case 'status':
+                return 2;
+            // Add more cases as needed
+            default:
+                return 0;
+        }
+    }
+</script>
+
+</body>
+</html>
+
